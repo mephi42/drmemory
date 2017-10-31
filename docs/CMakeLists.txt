@@ -180,8 +180,8 @@ install(DIRECTORY
 
 # drmemory/docs/html/index.html is hard to find, so add a more-visible
 # access point:
-install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}docs\")")
-install(CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}docs/${toolname}.html\" \"<html>\n<head>\n<meta http-equiv=\\\"refresh\\\" content=\\\"0; URL=../${toolname}/docs/html/index.html\\\">\n</head><body></body>\")")
+install(CODE "file(MAKE_DIRECTORY \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}docs\")")
+install(CODE "file(WRITE \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}docs/${toolname}.html\" \"<html>\n<head>\n<meta http-equiv=\\\"refresh\\\" content=\\\"0; URL=../${toolname}/docs/html/index.html\\\">\n</head><body></body>\")")
 
 # IE for some reason won't initially load an .ico in a web page from a server,
 # though will show it via file: or after pointing straight at image from server.

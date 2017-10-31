@@ -1694,7 +1694,7 @@ function (create_drrun_file frontend file_out name) # option list follows name
 
   # DRi#1509: generate a list of tools for drrun usage messages
   if (NOT DEBUG_BUILD) # avoid dups
-    install(CODE "file(APPEND \"\${CMAKE_INSTALL_PREFIX}/tools/list${BIT_SFX}\" \"${name}\\n\")")
+    install(CODE "file(APPEND \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/tools/list${BIT_SFX}\" \"${name}\\n\")")
   endif ()
 endfunction (create_drrun_file)
 
@@ -1998,7 +1998,7 @@ set(install_pdb_exclude
   PATTERN symfetch.pdb EXCLUDE
   PATTERN drstrace_unit_tests.pdb EXCLUDE)
 if (X64)
-  install(CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_BIN}/README.txt\" \"Dr. Memory has preliminary 64-bit support that does not yet include detecting uninitialized reads.  The drstrace tool and the Dr. Syscall and Umbra libraries are fully supported for 64-bit.\n\")")
+  install(CODE "file(WRITE \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${INSTALL_BIN}/README.txt\" \"Dr. Memory has preliminary 64-bit support that does not yet include detecting uninitialized reads.  The drstrace tool and the Dr. Syscall and Umbra libraries are fully supported for 64-bit.\n\")")
 endif (X64)
 install(DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/
   DESTINATION "${INSTALL_LIB}"
@@ -2024,15 +2024,15 @@ install(DIRECTORY ${PROJECT_BINARY_DIR}/${BUILD_BIN}/
 
 # create empty logs dir for release package
 # be sure to escape ",$ since evaluated at install time not configure time
-install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs\")")
+install(CODE "file(MAKE_DIRECTORY \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs\")")
 # CPack seems to ignore empty dirs so add a README file
-install(CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs/README.txt\" \"Default destination for log files.\n\")")
+install(CODE "file(WRITE \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs/README.txt\" \"Default destination for log files.\n\")")
 # ditto for pcaches
-install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs/codecache\")")
-install(CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs/codecache/README.txt\" \"Default destination for code cache files.\n\")")
+install(CODE "file(MAKE_DIRECTORY \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs/codecache\")")
+install(CODE "file(WRITE \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs/codecache/README.txt\" \"Default destination for code cache files.\n\")")
 # ditto for DR logdir
-install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs/dynamorio\")")
-install(CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs/codecache/README.txt\" \"Default destination for DynamoRIO log files (for diagnostics only).\n\")")
+install(CODE "file(MAKE_DIRECTORY \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs/dynamorio\")")
+install(CODE "file(WRITE \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX}${toolname}/logs/codecache/README.txt\" \"Default destination for DynamoRIO log files (for diagnostics only).\n\")")
 
 if (UNIX)
   if (APPLE)
@@ -2049,15 +2049,15 @@ if (BUILDING_SUB_PACKAGE)
   # XXX i#1855: this symlink makes "adb push" of our tarball's contents not work,
   # but presumably most users will untar on the Android device.
   # Fixing would require changing the script and the frontend binary.
-  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink .. dynamorio WORKING_DIRECTORY \${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX})")
+  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink .. dynamorio WORKING_DIRECTORY \$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX})")
 
   # Add a docs link in the top-level docs/ dir
-  install(CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/docs/DrMemory.html\" \"<html>\n<head>\n<meta http-equiv=\\\"refresh\\\" content=\\\"0; URL=../drmemory/drmemory/docs/html/index.html\\\">\n</head><body></body>\")")
+  install(CODE "file(WRITE \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/docs/DrMemory.html\" \"<html>\n<head>\n<meta http-equiv=\\\"refresh\\\" content=\\\"0; URL=../drmemory/drmemory/docs/html/index.html\\\">\n</head><body></body>\")")
 
 else (BUILDING_SUB_PACKAGE)
   # Include DR so user doesn't have to download separately (PR 457417).
   # We don't need docs/ or include/.
-  install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/${DR_install_dir}\")")
+  install(CODE "file(MAKE_DIRECTORY \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${DR_install_dir}\")")
 
   if (UNIX)
     # CPACK_INSTALLED_DIRECTORIES since 2.8.3 now properly preserves symlinks
@@ -2068,9 +2068,9 @@ else (BUILDING_SUB_PACKAGE)
       WORLD_READ WORLD_EXECUTE
       PATTERN "libdrdecode*" EXCLUDE)
     # ext dir is currently empty but we need it to avoid drrun error (i#427)
-    install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/ext/${LIB_ARCH}/${build_type}\")")
+    install(CODE "file(MAKE_DIRECTORY \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/ext/${LIB_ARCH}/${build_type}\")")
     # CPack seems to ignore empty dirs so add a README file
-    install(CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/ext/${LIB_ARCH}/${build_type}/README.txt\" \"Currently empty.\n\")")
+    install(CODE "file(WRITE \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/ext/${LIB_ARCH}/${build_type}/README.txt\" \"Currently empty.\n\")")
   endif (UNIX)
 
   # can't find way to package external individual files (can do whole dir)
@@ -2081,18 +2081,18 @@ else (BUILDING_SUB_PACKAGE)
   else ()
     set(DR_LICENSE_DIR "${DynamoRIO_DIR}/..")
   endif ()
-  install(CODE "configure_file(\"${DR_LICENSE_DIR}/License.txt\" \"\${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/License.txt\" COPYONLY)")
-  install(CODE "configure_file(\"${DR_LICENSE_DIR}/ACKNOWLEDGEMENTS\" \"\${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/ACKNOWLEDGEMENTS\" COPYONLY)")
+  install(CODE "configure_file(\"${DR_LICENSE_DIR}/License.txt\" \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/License.txt\" COPYONLY)")
+  install(CODE "configure_file(\"${DR_LICENSE_DIR}/ACKNOWLEDGEMENTS\" \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/ACKNOWLEDGEMENTS\" COPYONLY)")
   # rather whan whole README, which talks about running samples, etc.:
-  install(CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/README.txt\" \"This is a copy of the parts of DynamoRIO needed to run ${toolname_cap_spc}.  See http://dynamorio.org for more information.\n\")")
+  install(CODE "file(WRITE \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/README.txt\" \"This is a copy of the parts of DynamoRIO needed to run ${toolname_cap_spc}.  See http://dynamorio.org for more information.\n\")")
   # on Windows we don't need all the ${BIN_ARCH}/ tools, and they take up space
-  install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/${BIN_ARCH}\")")
+  install(CODE "file(MAKE_DIRECTORY \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/${BIN_ARCH}\")")
   if (UNIX)
     if (USER_SPECIFIED_DynamoRIO_DIR) # else DR installs straight there (i#1449)
-      install(CODE "configure_file(\"${DynamoRIO_DIR}/../${BIN_ARCH}/drrun\" \"\${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/${BIN_ARCH}/drrun\" COPYONLY)")
+      install(CODE "configure_file(\"${DynamoRIO_DIR}/../${BIN_ARCH}/drrun\" \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/${BIN_ARCH}/drrun\" COPYONLY)")
     endif ()
     if (NOT APPLE) # FIXME DRi#1286: no nudge support yet on MacOS
-      install(CODE "configure_file(\"${DynamoRIO_DIR}/../${BIN_ARCH}/nudgeunix\" \"\${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/${BIN_ARCH}/nudgeunix\" COPYONLY)")
+      install(CODE "configure_file(\"${DynamoRIO_DIR}/../${BIN_ARCH}/nudgeunix\" \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/${BIN_ARCH}/nudgeunix\" COPYONLY)")
     endif (NOT APPLE)
     # drconfiglib and drinjectlib are now static libs so no need to install
   else (UNIX)
@@ -2125,9 +2125,9 @@ else (BUILDING_SUB_PACKAGE)
     else ()
       set(covhelper drcov2lcov.exe)
     endif ()
-    install(CODE "configure_file(\"${DynamoRIO_DIR}/../${covdir}/${BIN_ARCH}/${covhelper}\" \"\${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/tools/${BIN_ARCH}/${covhelper}\" COPYONLY)")
+    install(CODE "configure_file(\"${DynamoRIO_DIR}/../${covdir}/${BIN_ARCH}/${covhelper}\" \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/tools/${BIN_ARCH}/${covhelper}\" COPYONLY)")
     if (WIN32)
-      install(CODE "configure_file(\"${DynamoRIO_DIR}/../${LIB_ARCH}/${build_type}/dynamorio.dll\" \"\${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/tools/${BIN_ARCH}/dynamorio.dll\" COPYONLY)")
+      install(CODE "configure_file(\"${DynamoRIO_DIR}/../${LIB_ARCH}/${build_type}/dynamorio.dll\" \"\$ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/${DR_install_dir}/tools/${BIN_ARCH}/dynamorio.dll\" COPYONLY)")
     endif ()
   endif ()
 endif (BUILDING_SUB_PACKAGE)
